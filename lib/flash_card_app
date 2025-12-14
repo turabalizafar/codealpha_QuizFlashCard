@@ -1,0 +1,292 @@
+import 'package:flutter/material.dart';
+import 'backend.dart';
+
+class Flashcard extends StatefulWidget {
+  const Flashcard({super.key});
+
+  @override
+  State<Flashcard> createState() => _FlashcardState();
+}
+
+class _FlashcardState extends State<Flashcard> {
+  bool _isVisible = false;
+  int currentQuestionIndex = 0;
+
+  final TextEditingController textEditingController = TextEditingController();
+  final TextEditingController textEditingController1 = TextEditingController();
+
+  List<Question> listOfQuestions = List<Question>.empty(growable: true);
+
+  void initializeQuestion() {
+    listOfQuestions.add(Question('What is the capital of France', 'Paris'));
+    listOfQuestions.add(
+      Question('What stands for OOP', 'Object Oriented Programming'),
+    );
+    listOfQuestions.add(Question('Is Dart and Flutter is good', 'Yes'));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initializeQuestion();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flash Card Quiz'),
+        actions: [
+          IconButton(
+            tooltip: Text('Add new').toString(),
+            onPressed: () {
+              showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Edit Flash Card'),
+                  content: Column(
+                    children: [
+                      TextField(
+                        controller: textEditingController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your question here',
+                        ),
+                      ),
+                      TextField(
+                        controller: textEditingController1,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your answer here',
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, 'Cancel');
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          if (listOfQuestions.isEmpty) {
+                            return;
+                          }
+                          String question = textEditingController.text;
+                          String answer = textEditingController1.text;
+                          listOfQuestions.add(Question(question, answer));
+                        });
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: Icon(Icons.add),
+          ),
+          IconButton(
+            tooltip: Text('Edit').toString(),
+            onPressed: () {
+              showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Edit Flash Card'),
+                  content: Column(
+                    children: [
+                      TextField(
+                        controller: textEditingController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your question here',
+                        ),
+                      ),
+                      TextField(
+                        controller: textEditingController1,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your answer here',
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, 'Cancel');
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          if (listOfQuestions.isEmpty) {
+                            return;
+                          }
+                          String question = textEditingController.text;
+                          String answer = textEditingController1.text;
+                          listOfQuestions[currentQuestionIndex] = Question(
+                            question,
+                            answer,
+                          );
+                        });
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: Icon(Icons.edit),
+          ),
+          IconButton(
+            tooltip: Text('Delete').toString(),
+            onPressed: () {
+              showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Delete Flash Card'),
+                  content: const Text(
+                    'Are you sure you want to delete this flash card?',
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, 'Cancel');
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          if (listOfQuestions.isEmpty) {
+                            return;
+                          }
+
+                          listOfQuestions.removeAt(currentQuestionIndex);
+
+                          if (currentQuestionIndex > 0 &&
+                              currentQuestionIndex == listOfQuestions.length) {
+                            currentQuestionIndex -= 1;
+                          }
+                        });
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: Icon(Icons.delete),
+          ),
+        ],
+      ),
+
+      body: Column(
+        children: [
+          Center(
+            child: SizedBox(
+              width: double.infinity,
+              height: 300,
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 0,
+                        right: 20,
+                        left: 20,
+                      ),
+                      child: Center(
+                        child: Text(
+                          // 'What is the Capital of France',
+                          listOfQuestions[currentQuestionIndex].getQuestion,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        Visibility(
+                          visible: _isVisible,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Center(
+                              child: Text(
+                                // 'Paris',
+                                listOfQuestions[currentQuestionIndex].getAnswer,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 20,
+              children: [
+                SizedBox(
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        if (_isVisible == true) {
+                          _isVisible = false;
+                        } else {
+                          _isVisible = true;
+                        }
+                      });
+                    },
+                    child: Text('show answer'),
+                  ),
+                ),
+                SizedBox(
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        if (currentQuestionIndex < listOfQuestions.length - 1) {
+                          currentQuestionIndex += 1;
+                        } else {
+                          currentQuestionIndex = 0;
+                        }
+                      });
+                    },
+                    child: Text('next'),
+                  ),
+                ),
+                SizedBox(
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        if (currentQuestionIndex > 0) {
+                          currentQuestionIndex -= 1;
+                        } else {
+                          currentQuestionIndex = listOfQuestions.length - 1;
+                        }
+                      });
+                    },
+                    child: Text('previous'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
